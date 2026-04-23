@@ -1,0 +1,61 @@
+# Skills
+
+A small, portable skills plugin. Currently ships:
+
+- **code-review** — focused, severity-grouped review of the current branch's diff or a specified PR.
+- **adversarial-loop** — alternates an implementer and an independent verifier `claude -p` call until the verifier says PASS (or 30 iterations).
+
+The skill files (`skills/*/SKILL.md`) are plain markdown with YAML frontmatter and are the single source of truth — both Claude Code and Codex read the same files.
+
+## Layout
+
+```
+.claude-plugin/
+  plugin.json          # Claude Code plugin manifest
+  marketplace.json     # Claude Code marketplace entry (so this repo is its own marketplace)
+skills/
+  code-review/SKILL.md
+  adversarial-loop/SKILL.md
+commands/
+  code-review.md       # /code-review slash command
+  adversarial-loop.md  # /adversarial-loop slash command
+scripts/
+  install-codex.sh     # symlink skills + commands into ~/.codex/
+AGENTS.md              # entry point Codex reads automatically
+```
+
+## Install in Claude Code
+
+Add this repo as a marketplace, then install the plugin:
+
+```
+/plugin marketplace add adamziel/Skills
+/plugin install skills@adamziel-skills
+```
+
+After install, `/code-review` and `/adversarial-loop` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
+
+To develop locally, clone the repo and point Claude Code at the working copy:
+
+```
+git clone https://github.com/adamziel/Skills ~/code/skills
+/plugin marketplace add ~/code/skills
+/plugin install skills@adamziel-skills
+```
+
+## Install in Codex
+
+Codex doesn't have a plugin system yet, but it does read `~/.codex/prompts/*.md` for slash commands and (when enabled) `~/.codex/skills/<name>/SKILL.md` for skills. The installer script symlinks both:
+
+```
+git clone https://github.com/adamziel/Skills ~/code/skills
+~/code/skills/scripts/install-codex.sh
+```
+
+Then in Codex, `/code-review` and `/adversarial-loop` work the same way.
+
+If your Codex build doesn't yet support skill auto-discovery, the slash commands still work because `commands/*.md` reference the skill files explicitly — Codex will read them via the prompt body.
+
+## Updating
+
+Both installs use symlinks to the cloned repo, so `git pull` is the update path.

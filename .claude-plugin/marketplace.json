@@ -1,0 +1,14 @@
+{
+  "name": "adamziel-skills",
+  "owner": {
+    "name": "Adam Zieliński",
+    "url": "https://github.com/adamziel"
+  },
+  "plugins": [
+    {
+      "name": "skills",
+      "source": ".",
+      "description": "code-review and adversarial-loop skills, installable in Claude Code and Codex."
+    }
+  ]
+}
