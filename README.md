@@ -4,6 +4,7 @@ A small, portable skills plugin. Currently ships:
 
 - **code-review** — focused, severity-grouped review of the current branch's diff or a specified PR.
 - **adversarial-loop** — alternates an implementer and an independent verifier `claude -p` call until the verifier says PASS (or 30 iterations).
+- **docs** — write tutorial / onboarding documentation for a software library (zero to familiarity), with embedded interactive code examples. Distilled from 21 highly-praised OSS docs sites (Svelte, Vue, React, Rust Book, FastAPI, Django, MDN, Tailwind, Astro, Next.js, ...).
 
 The skill files (`skills/*/SKILL.md`) are plain markdown with YAML frontmatter and are the single source of truth — both Claude Code and Codex read the same files.
 
@@ -16,9 +17,12 @@ The skill files (`skills/*/SKILL.md`) are plain markdown with YAML frontmatter a
 skills/
   code-review/SKILL.md
   adversarial-loop/SKILL.md
+  docs/SKILL.md
+  docs/references/    # page-templates.md, source-projects.md
 commands/
   code-review.md       # /code-review slash command
   adversarial-loop.md  # /adversarial-loop slash command
+  docs.md              # /docs slash command
 scripts/
   install-codex.sh     # symlink skills + commands into ~/.codex/
 AGENTS.md              # entry point Codex reads automatically
@@ -33,7 +37,7 @@ Add this repo as a marketplace, then install the plugin:
 /plugin install skills@adamziel-skills
 ```
 
-After install, `/code-review` and `/adversarial-loop` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
+After install, `/code-review`, `/adversarial-loop`, and `/docs` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
 
 To develop locally, clone the repo and point Claude Code at the working copy:
 
@@ -52,7 +56,7 @@ git clone https://github.com/adamziel/Skills ~/code/skills
 ~/code/skills/scripts/install-codex.sh
 ```
 
-Then in Codex, `/code-review` and `/adversarial-loop` work the same way.
+Then in Codex, `/code-review`, `/adversarial-loop`, and `/docs` work the same way.
 
 If your Codex build doesn't yet support skill auto-discovery, the slash commands still work because `commands/*.md` reference the skill files explicitly — Codex will read them via the prompt body.
 
