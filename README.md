@@ -5,6 +5,8 @@ A small, portable skills plugin. Currently ships:
 - **code-review** — focused, severity-grouped review of the current branch's diff or a specified PR.
 - **adversarial-loop** — alternates an implementer and an independent verifier `claude -p` call until the verifier says PASS (or 30 iterations).
 - **docs** — write tutorial / onboarding documentation for a software library (zero to familiarity), with embedded interactive code examples. Distilled from 21 highly-praised OSS docs sites (Svelte, Vue, React, Rust Book, FastAPI, Django, MDN, Tailwind, Astro, Next.js, ...).
+- **writing-pr-descriptions** — clear, punchy, human-oriented PR descriptions: four sections (What it does, Rationale, Implementation, Testing instructions), specific over generic, no AI slop.
+- **documenting-code** — developer-friendly code documentation: explains WHY not WHAT, documents constraints and edge cases, inspired by WordPress's HTML API docs style.
 
 The skill files (`skills/*/SKILL.md`) are plain markdown with YAML frontmatter and are the single source of truth — both Claude Code and Codex read the same files.
 
@@ -18,11 +20,15 @@ skills/
   code-review/SKILL.md
   adversarial-loop/SKILL.md
   docs/SKILL.md
-  docs/references/    # page-templates.md, source-projects.md
+  docs/references/          # page-templates.md, source-projects.md
+  writing-pr-descriptions/SKILL.md
+  documenting-code/SKILL.md
 commands/
-  code-review.md       # /code-review slash command
-  adversarial-loop.md  # /adversarial-loop slash command
-  docs.md              # /docs slash command
+  code-review.md            # /code-review slash command
+  adversarial-loop.md       # /adversarial-loop slash command
+  docs.md                   # /docs slash command
+  writing-pr-descriptions.md  # /writing-pr-descriptions slash command
+  documenting-code.md       # /documenting-code slash command
 scripts/
   install-codex.sh     # symlink skills + commands into ~/.codex/
 AGENTS.md              # entry point Codex reads automatically
@@ -37,7 +43,7 @@ Add this repo as a marketplace, then install the plugin:
 /plugin install skills@adamziel-skills
 ```
 
-After install, `/code-review`, `/adversarial-loop`, and `/docs` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
+After install, `/code-review`, `/adversarial-loop`, `/docs`, `/writing-pr-descriptions`, and `/documenting-code` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
 
 To develop locally, clone the repo and point Claude Code at the working copy:
 
