@@ -37,6 +37,9 @@ This skill exists because a naive loop script is easy to make and easy to break.
    - `.autonomous-loop/logs/`
    - `.autonomous-loop/tmp/`
 5. Initialize Git if needed. Commit the loop script and state bootstrap.
+   - Tell worker sessions to commit coherent changes often, at natural milestones, so older variants remain recoverable.
+   - Tell worker sessions to create annotated `known-good/...` tags only for major verified stable states, not for routine checkpoints.
+   - Known-good tags must stay local by default. Do not push tags unless the user explicitly asks.
 6. Smoke-test the script:
    - `bash -n run_autonomous_loop.sh`
    - `skills/autonomous-loop/scripts/smoke_test_runner.sh ./run_autonomous_loop.sh` from this skill repo, or copy/run that script against the generated runner.
@@ -56,6 +59,7 @@ The generated runner must:
 - ask the agent to update memory and progress before finishing
 - ask the agent to run relevant tests and commit coherent changes
 - auto-commit leftover changes after a successful session if the agent did not
+- ask the agent to use local-only annotated `known-good/...` tags sparingly for major verified states
 - keep logs quiet under the state directory
 - avoid committing secrets, logs, or tmp files
 
@@ -75,6 +79,7 @@ Every iteration must clear/redraw to a concise dashboard with these exact sectio
 2. `Progress`
    - print the top of `progress.md`
    - checkboxes must show the big picture, not low-level artifacts
+   - this must happen every time the loop starts or restarts an iteration, before launching the next agent session
 3. `Last Agent Result`
    - print only a short tail/head of the previous final response
    - print a clear empty state on the first iteration
@@ -101,6 +106,8 @@ Every loop iteration should tell the agent:
 - to make production-quality changes, not a demo-only slice
 - to fill in missing user flows implied by the goal
 - to add/update tests and run relevant checks
+- to commit coherent progress often at natural milestones
+- to create local-only annotated `known-good/...` tags only for major verified stable states, and not for every commit
 - to update memory/progress before the final response
 - to keep the final response short: changes, tests, risks/blockers, next step
 - not to block on secrets or external accounts; build configuration/error paths instead

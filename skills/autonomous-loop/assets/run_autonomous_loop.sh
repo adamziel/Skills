@@ -177,8 +177,10 @@ Operating rules:
 5. Make failures observable with actionable diagnostics.
 6. Do not block on secrets or external accounts; build configuration and friendly error paths instead.
 7. Commit coherent changes with clear commit messages. If you leave uncommitted changes, the wrapper may auto-commit them.
-8. Update $MEMORY_FILE and $PROGRESS_FILE before your final response so the next fresh session has continuity.
-9. Keep your final response concise: what changed, tests run, current risks/blockers, and next best step.
+8. Commit often at natural milestones so older variants remain recoverable.
+9. Create local-only annotated known-good/... tags only for major verified stable states. Do not tag routine checkpoints, and do not push tags unless the user explicitly asks.
+10. Update $MEMORY_FILE and $PROGRESS_FILE before your final response so the next fresh session has continuity.
+11. Keep your final response concise: what changed, tests run, current risks/blockers, and next best step.
 
 Stop only after a coherent milestone, a real blocker, or a natural handoff point.
 The wrapper will immediately start the next session after a successful exit.
@@ -252,4 +254,5 @@ while true; do
 
   next_iteration=$((iteration + 1))
   printf '%s\n' "$next_iteration" > "$ITERATION_FILE"
+  printf '\nIteration %s finished successfully. Restarting immediately; the next dashboard will print the updated Progress section before launching the agent.\n' "$iteration"
 done
