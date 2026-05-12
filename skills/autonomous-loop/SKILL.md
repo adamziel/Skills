@@ -22,6 +22,8 @@ Create an observable loop runner first. The runner should keep enough durable st
 
 Do not stream intermediate agent artifacts to the terminal. Write them to logs and state files.
 
+This skill exists because a naive loop script is easy to make and easy to break. Do not stop at "it looks right". Prove the generated runner starts correctly, invokes the selected agent with the installed CLI syntax, and fails loudly instead of spinning if the agent invocation is wrong.
+
 ## Default Workflow
 
 1. Pick the target repo root. Usually it is the current working directory.
@@ -37,7 +39,8 @@ Do not stream intermediate agent artifacts to the terminal. Write them to logs a
 5. Initialize Git if needed. Commit the loop script and state bootstrap.
 6. Smoke-test the script:
    - `bash -n run_autonomous_loop.sh`
-   - a short bounded invocation such as `timeout 10s ./run_autonomous_loop.sh` when it is safe to start one agent call, or a direct non-mutating CLI check if credentials/cost make that risky.
+   - `skills/autonomous-loop/scripts/smoke_test_runner.sh ./run_autonomous_loop.sh` from this skill repo, or copy/run that script against the generated runner.
+   - If also using the real agent CLI, run a tiny non-mutating direct invocation before trusting the infinite loop. For Codex, verify that approval options are placed before `exec` for CLIs that require that shape.
 7. Give the user the exact command to run. Do not start the infinite loop unless the user explicitly asked you to run it.
 
 ## Runner Requirements
@@ -46,7 +49,7 @@ The generated runner must:
 
 - run forever until interrupted by the user, with no sleep between successful sessions
 - immediately start the next agent session after a successful one
-- fail fast on CLI/script errors and print the relevant log tail instead of spinning
+- fail fast on CLI/script errors and print the relevant log tail instead of spinning or retrying
 - preflight the chosen agent CLI before entering the loop
 - support Codex by default when available, and Claude as a fallback
 - pass memory/progress/goal file paths into every session
@@ -55,6 +58,37 @@ The generated runner must:
 - auto-commit leftover changes after a successful session if the agent did not
 - keep logs quiet under the state directory
 - avoid committing secrets, logs, or tmp files
+
+No `sleep` belongs in the loop body, including a "courtesy" delay after each session. If a user asks for a no-sleep loop, inspect the generated script for `sleep` before reporting success.
+
+## Terminal Contract
+
+Every iteration must clear/redraw to a concise dashboard with these exact sections in this order:
+
+1. Header:
+   - loop name
+   - start timestamp
+   - agent name and binary
+   - iteration number
+   - Git branch, HEAD, and uncommitted path count
+   - current session log path
+2. `Progress`
+   - print the top of `progress.md`
+   - checkboxes must show the big picture, not low-level artifacts
+3. `Last Agent Result`
+   - print only a short tail/head of the previous final response
+   - print a clear empty state on the first iteration
+4. `Status`
+   - print one line saying the agent is starting and output is going only to the log file
+
+On agent failure, print:
+
+- exit status
+- log file path
+- `Last log lines`
+- the last relevant log tail
+
+Then exit with the same nonzero status. Do not continue to the next iteration after a failed agent call.
 
 ## Prompt Shape
 
@@ -81,6 +115,22 @@ If the user explicitly wants adversarial verification, keep it as a phase inside
 
 The main durable loop remains the source of continuity.
 
+## Required Smoke Test Semantics
+
+The bundled smoke test uses a fake Codex binary, so it does not spend tokens or depend on credentials. It must demonstrate:
+
+- the runner passes `bash -n`
+- no `sleep` command is present
+- preflight accepts the fake CLI
+- iteration 1 succeeds
+- iteration 2 starts immediately
+- the previous result appears in `Last Agent Result`
+- a forced iteration-2 agent failure exits nonzero
+- the terminal output includes the dashboard sections listed above
+- the failure output includes the log tail
+
+If this smoke test fails, fix the runner before reporting back. Do not tell the user to ignore the error or manually skip the failing path.
+
 ## Output To User
 
 Report:
@@ -88,7 +138,7 @@ Report:
 - script path
 - state directory path
 - Git commit created
-- tests/smoke checks run
+- tests/smoke checks run, including whether the fake-agent runner test passed
 - command to start the loop
 
 Keep the answer concise.
