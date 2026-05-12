@@ -12,3 +12,4 @@ Make sure the generated loop instructions include these operating nuances:
 - Commit coherent progress often, so older variants are recoverable.
 - Create local-only annotated `known-good/...` tags for major verified stable states, but not for every commit or ordinary checkpoint.
 - Keep progress visible: every loop restart/iteration must print the current progress summary before launching the next agent session.
+- Do not let "done" collapse into passive monitoring. If the loop thinks the requested work is complete, it must look for gaps, uncovered nuances, original-prompt omissions, difficult unaddressed parts, shallow implementation, shallow tests, edge cases, and user-flow/operational rough spots; then address the highest-value gap and continue.

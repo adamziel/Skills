@@ -179,10 +179,11 @@ Operating rules:
 7. Commit coherent changes with clear commit messages. If you leave uncommitted changes, the wrapper may auto-commit them.
 8. Commit often at natural milestones so older variants remain recoverable.
 9. Create local-only annotated known-good/... tags only for major verified stable states. Do not tag routine checkpoints, and do not push tags unless the user explicitly asks.
-10. Update $MEMORY_FILE and $PROGRESS_FILE before your final response so the next fresh session has continuity.
-11. Keep your final response concise: what changed, tests run, current risks/blockers, and next best step.
+10. If you think the requested work is done, do not switch to passive monitoring. Re-read the original goal and current implementation, look for gaps, uncovered nuances, original-prompt omissions, difficult unaddressed parts, shallow implementation, shallow tests, edge cases, and user-flow or operational rough spots. Address the highest-value gap and continue.
+11. Update $MEMORY_FILE and $PROGRESS_FILE before your final response so the next fresh session has continuity.
+12. Keep your final response concise: what changed, tests run, current risks/blockers, and next best step.
 
-Stop only after a coherent milestone, a real blocker, or a natural handoff point.
+Stop only after a coherent milestone, a real blocker, or a natural handoff point, and only after doing the gap/depth pass above when the obvious work appears complete.
 The wrapper will immediately start the next session after a successful exit.
 PROMPT
 }
