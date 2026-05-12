@@ -20,6 +20,7 @@ The skill files (`skills/*/SKILL.md`) are plain markdown with YAML frontmatter a
 skills/
   code-review/SKILL.md
   autonomous-loop/SKILL.md
+  adversarial-loop/SKILL.md  # compatibility alias for autonomous-loop
   docs/SKILL.md
   docs/references/          # page-templates.md, source-projects.md
   writing-pr-descriptions/SKILL.md

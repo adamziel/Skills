@@ -9,6 +9,6 @@
   "homepage": "https://gitea.zielinscy.dev/adam/ai-skills",
   "repository": "https://gitea.zielinscy.dev/adam/ai-skills",
   "license": "MIT",
-  "skills": ["./skills/code-review", "./skills/autonomous-loop", "./skills/docs", "./skills/writing-pr-descriptions", "./skills/documenting-code", "./skills/llm-wiki"],
+  "skills": ["./skills/code-review", "./skills/autonomous-loop", "./skills/adversarial-loop", "./skills/docs", "./skills/writing-pr-descriptions", "./skills/documenting-code", "./skills/llm-wiki"],
   "commands": ["./commands"]
 }
