@@ -2,13 +2,13 @@
   "name": "adamziel-skills",
   "owner": {
     "name": "Adam Zieliński",
-    "url": "https://github.com/adamziel"
+    "url": "https://gitea.zielinscy.dev/adam"
   },
   "plugins": [
     {
       "name": "skills",
       "source": ".",
-      "description": "code-review, adversarial-loop, docs, writing-pr-descriptions, and documenting-code skills, installable in Claude Code and Codex."
+      "description": "code-review, adversarial-loop, docs, writing-pr-descriptions, documenting-code, and llm-wiki skills, installable in Claude Code and Codex."
     }
   ]
 }
