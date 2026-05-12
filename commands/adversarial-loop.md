@@ -1,8 +1,8 @@
 ---
-description: Iterate on a task by alternating an implementer Claude call and an independent verifier Claude call, looping up to 30 times until the verifier says PASS.
-argument-hint: "<task description>"
+description: Compatibility alias for /autonomous-loop. Creates a durable autonomous build loop instead of the old bounded implementer/verifier loop.
+argument-hint: "<goal>"
 ---
 
-Invoke the `adversarial-loop` skill with the task: $ARGUMENTS
+Invoke the `autonomous-loop` skill with the goal: $ARGUMENTS
 
-If `$ARGUMENTS` is empty, ask the user what task to run before doing anything else. Otherwise follow the skill's steps verbatim — create the working directory, write `task.md` and `run.sh`, run the loop, and report the final verdict and working-directory path.
+If `$ARGUMENTS` is empty, ask the user what goal the loop should pursue before doing anything else. Otherwise follow the `autonomous-loop` skill. If the user explicitly asks for adversarial verification, add verifier tasks as part of the autonomous loop state rather than replacing the durable loop.
