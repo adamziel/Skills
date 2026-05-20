@@ -4,6 +4,7 @@ A small, portable skills plugin. Currently ships:
 
 - **code-review** — focused, severity-grouped review of the current branch's diff or a specified PR.
 - **autonomous-loop** — creates a durable repo-local build loop that repeatedly reprompts Codex or Claude with persistent memory, progress, quiet logs, Git commits, tests, and fail-fast observability. `/adversarial-loop` remains a compatibility alias.
+- **supervised-team** — run a supervised team of parallel Codex/tmux sessions with explicit intensity, worker scopes, artifacts, quality gates, and anti-drift rules.
 - **docs** — write tutorial / onboarding documentation for a software library (zero to familiarity), with embedded interactive code examples. Distilled from 21 highly-praised OSS docs sites (Svelte, Vue, React, Rust Book, FastAPI, Django, MDN, Tailwind, Astro, Next.js, ...).
 - **writing-pr-descriptions** — clear, punchy, human-oriented PR descriptions: four sections (What it does, Rationale, Implementation, Testing instructions), specific over generic, no AI slop.
 - **documenting-code** — developer-friendly code documentation: explains WHY not WHAT, documents constraints and edge cases, inspired by WordPress's HTML API docs style.
@@ -21,6 +22,7 @@ skills/
   code-review/SKILL.md
   autonomous-loop/SKILL.md
   adversarial-loop/SKILL.md  # compatibility alias for autonomous-loop
+  supervised-team/SKILL.md
   docs/SKILL.md
   docs/references/          # page-templates.md, source-projects.md
   writing-pr-descriptions/SKILL.md
@@ -49,7 +51,7 @@ git clone https://gitea.zielinscy.dev/adam/ai-skills.git ~/code/ai-skills
 /plugin install skills@adamziel-skills
 ```
 
-After install, `/code-review`, `/autonomous-loop`, `/adversarial-loop`, `/docs`, `/writing-pr-descriptions`, `/documenting-code`, and `/llm-wiki` are available as slash commands, and the skills auto-trigger when their descriptions match the request.
+After install, `/code-review`, `/autonomous-loop`, `/adversarial-loop`, `/docs`, `/writing-pr-descriptions`, `/documenting-code`, and `/llm-wiki` are available as slash commands, and the skills auto-trigger when their descriptions match the request. `supervised-team` is a skill-only workflow; invoke it as `$supervised-team` or by asking for a supervised parallel Codex/tmux team.
 
 To develop locally, edit the cloned working copy and pull updates with `git pull`.
 
@@ -62,7 +64,7 @@ git clone https://gitea.zielinscy.dev/adam/ai-skills.git ~/code/ai-skills
 ~/code/ai-skills/scripts/install-codex.sh
 ```
 
-Then in Codex, `/code-review`, `/autonomous-loop`, `/adversarial-loop`, `/docs`, `/writing-pr-descriptions`, `/documenting-code`, and `/llm-wiki` work the same way.
+Then in Codex, `/code-review`, `/autonomous-loop`, `/adversarial-loop`, `/docs`, `/writing-pr-descriptions`, `/documenting-code`, and `/llm-wiki` work the same way. The `supervised-team` skill is symlinked into `~/.codex/skills/supervised-team`.
 
 If your Codex build doesn't yet support skill auto-discovery, the slash commands still work because `commands/*.md` reference the skill files explicitly — Codex will read them via the prompt body.
 

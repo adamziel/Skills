@@ -1,7 +1,7 @@
 {
   "name": "skills",
   "version": "0.1.0",
-  "description": "Adam's portable skills: code-review, autonomous-loop, docs, writing-pr-descriptions, documenting-code, and llm-wiki. Works in Claude Code (as a plugin) and Codex (via prompts/AGENTS.md).",
+  "description": "Adam's portable skills: code-review, autonomous-loop, supervised-team, docs, writing-pr-descriptions, documenting-code, and llm-wiki. Works in Claude Code (as a plugin) and Codex (via prompts/AGENTS.md).",
   "author": {
     "name": "Adam Zieliński",
     "url": "https://gitea.zielinscy.dev/adam"
@@ -9,6 +9,6 @@
   "homepage": "https://gitea.zielinscy.dev/adam/ai-skills",
   "repository": "https://gitea.zielinscy.dev/adam/ai-skills",
   "license": "MIT",
-  "skills": ["./skills/code-review", "./skills/autonomous-loop", "./skills/adversarial-loop", "./skills/docs", "./skills/writing-pr-descriptions", "./skills/documenting-code", "./skills/llm-wiki"],
+  "skills": ["./skills/code-review", "./skills/autonomous-loop", "./skills/adversarial-loop", "./skills/supervised-team", "./skills/docs", "./skills/writing-pr-descriptions", "./skills/documenting-code", "./skills/llm-wiki"],
   "commands": ["./commands"]
 }
