@@ -4,7 +4,7 @@ A small, portable skills plugin. Currently ships:
 
 - **code-review** — focused, severity-grouped review of the current branch's diff or a specified PR.
 - **prepare-for-merging** — get a PR review-ready: update description, document and clean up code, address Copilot feedback, mark ready, and get CI green.
-- **merge-and-open-next-in-stack** — advance a small PR stack: address reviews, wait/fix CI, merge safely, then identify or create the next PR.
+- **merge-and-open-next-in-stack** — wait for CI, merge a stack PR safely, then find, create, or carve out the next small PR.
 - **autonomous-loop** — creates a durable repo-local build loop that repeatedly reprompts Codex or Claude with persistent memory, progress, quiet logs, Git commits, tests, and fail-fast observability. `/adversarial-loop` remains a compatibility alias.
 - **supervised-team** — run a supervised team of parallel Codex/tmux sessions with explicit intensity, worker scopes, artifacts, quality gates, and anti-drift rules.
 - **docs** — write tutorial / onboarding documentation for a software library (zero to familiarity), with embedded interactive code examples. Distilled from 21 highly-praised OSS docs sites (Svelte, Vue, React, Rust Book, FastAPI, Django, MDN, Tailwind, Astro, Next.js, ...).

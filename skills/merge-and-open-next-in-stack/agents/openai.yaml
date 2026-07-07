@@ -1,4 +1,4 @@
 interface:
   display_name: "Merge and Open Next in Stack"
-  short_description: "Advance stacked pull requests safely."
-  default_prompt: "Advance this stacked PR: resolve reviews, wait for CI, merge if safe, then identify or create the next small PR."
+  short_description: "Merge a stack PR and open the next."
+  default_prompt: "Wait for CI, merge this stack PR if safe, then find, create, or carve out the next small PR I should work with."
