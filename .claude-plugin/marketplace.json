@@ -8,7 +8,7 @@
     {
       "name": "skills",
       "source": ".",
-      "description": "code-review, merge-and-open-next-in-stack, autonomous-loop, supervised-team, docs, writing-pr-descriptions, documenting-code, and llm-wiki skills, installable in Claude Code and Codex."
+      "description": "code-review, merge-and-open-next-in-stack, autonomous-loop, supervised-team, docs, update-pr-description, writing-pr-descriptions, documenting-code, and llm-wiki skills, installable in Claude Code and Codex."
     }
   ]
 }
