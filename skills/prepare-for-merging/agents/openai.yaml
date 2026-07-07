@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare for Merging"
+  short_description: "Get a PR review-ready and green."
+  default_prompt: "Prepare this PR for merging: update the PR description, document and clean up the code, address Copilot feedback, mark ready for review, and iterate until CI is green."

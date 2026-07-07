@@ -15,6 +15,8 @@ stack-advancement workflow.
 - Keep each PR small and independently reviewable. Do not mix unrelated cleanup into the
   current PR just because it is nearby.
 - Finish the current PR before advancing the stack unless the current PR is blocked.
+- If the PR is not genuinely ready, run `/prepare-for-merging` if available before
+  trying to merge or advance the stack.
 - Preserve stack order. Merge parents before children; retarget or rebase children after
   a parent merges.
 - Prefer ordinary merges. Use admin override only when the user explicitly authorized it
