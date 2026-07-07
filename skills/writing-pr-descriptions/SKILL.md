@@ -1,13 +1,15 @@
 ---
 name: writing-pr-descriptions
-description: Writes clear, punchy, human-oriented PR descriptions that focus on what matters.
+description: Update GitHub PR titles and descriptions with clear, specific, human-oriented wording. Prefer the `/update-pr-description` command; `/writing-pr-descriptions` remains a compatibility alias.
 ---
 
-When writing PR descriptions, be concise and structured. Write the right things, not a lot of things.
+When writing or updating PR titles and descriptions, write the right things, not a lot of things. Be concise, specific, and concrete about the behavior change and the failure or motivation behind it.
+
+When the user asks to update a GitHub PR title or description, update GitHub directly unless they explicitly ask for draft text only.
 
 # Process
 
-Before writing, compare the branch against the PR base branch (not just the last commit):
+Before writing, compare the branch against the PR base branch, not just the last commit:
 
 ```bash
 git diff <base>...HEAD
@@ -16,16 +18,28 @@ git log <base>...HEAD --oneline
 
 Use `trunk` or `main` as appropriate for the repo. This shows the full scope of changes.
 
-# Default Structure
+# Title and First Sentence
 
-Use these four sections, in this order:
+The PR title must name the primary behavior change, not a broad outcome. For failure-path PRs, prefer titles shaped like:
+
+- `[Area] Stop <wrong behavior>`
+- `[Area] Prevent <bad state>`
+- `[Area] Show <specific error>`
+- `[Area] Detect <specific condition>`
+
+Avoid title words like “fix,” “improve,” “restore,” or “preserve” unless the PR literally does that as its main behavior. Do not force secondary changes into the title; cover them in the description.
+
+The first sentence of the PR description must summarize what changes for the user and why the PR exists. It should be specific enough to match the code, but not so detailed that it becomes an implementation summary.
+
+# Default Shape
+
+Use these sections by default:
 
 ## What it does
 ## Rationale
-## Implementation
 ## Testing instructions
 
-Keep each section focused. This is the default PR description style unless the user explicitly asks for a different format.
+Add `## Implementation` only when it helps reviewers understand one or two non-obvious design choices. If the implementation can be explained in one sentence inside `What it does` or `Rationale`, do not create a separate section.
 
 # Section Guidance
 
@@ -37,9 +51,23 @@ Say what behavior, API, invariant, or workflow changed. Mention important non-go
 
 Explain why the change exists and why this PR is shaped this way. For stacked PRs, explain what this PR adds on top of the previous PR and what remains for later PRs.
 
+For failure paths, use this shape:
+
+`When [user action], [stored state] remains. Then [code path] does [wrong action]. It fails because [specific invariant/state].`
+
+State the direct outcome before examples. Prefer:
+
+> `bootSiteClient()` mounted the partial OPFS directory and tried to boot it. It would not boot because the initial sync never finished.
+
+over:
+
+> This is bad because files, config, plugins, or uploads may be missing.
+
+Avoid vague causal phrases such as “we looked here because,” “could be found again,” “restore more predictably,” “improves handling,” and “fixes edge cases.” If a sentence cannot point to a specific state, file, flag, UI message, or code path, rewrite it.
+
 ## Implementation
 
-Summarize the mechanism at the right level. Use a short numbered list when the flow matters. Include a tiny code example only when it clarifies a non-obvious design.
+Summarize the mechanism at the right level. Use a short numbered list when the flow matters. Include a tiny code example only when it clarifies a non-obvious design. Skip this section when the mechanism fits naturally in `What it does` or `Rationale`.
 
 ## Testing instructions
 
@@ -49,7 +77,7 @@ List concrete commands and manual checks. Prefer exact commands in a fenced code
 
 **PR titles:** Never start PR titles with `[codex]`, `Codex:`, or any AI/tool label. Never add Codex/OpenAI co-author trailers or AI disclosure boilerplate to PR descriptions.
 
-**Be specific.** Use inline code for technical terms: `TokenRefresher`, `SESSION_TIMEOUT`, `/api/v2/auth`.
+**Be specific.** Use inline `code` for technical terms: `TokenRefresher`, `SESSION_TIMEOUT`, `/api/v2/auth`.
 
 **Be concise.** Every sentence should add new information. Cut the fluff.
 
@@ -59,43 +87,32 @@ List concrete commands and manual checks. Prefer exact commands in a fenced code
 
 **Avoid file-by-file changelogs.** The diff already shows files. Explain the product or technical change instead.
 
+**Keep language clear without dumbing it down.** Write for a junior developer whose second language is English, but do not over-explain basic project concepts.
+
 # Examples
 
-## Good: Focused and Structured
+## Good: Failure Path
 
 ```markdown
 ## What it does
 
-Prevents users from getting logged out mid-navigation. The `TokenRefresher` now blocks route transitions until any in-flight token refresh completes.
+Stops browser-stored Playgrounds from booting OPFS WordPress files when the first save did not finish, and shows an interrupted-save message instead.
 
 ## Rationale
 
-Token expiration and navigation could race. If your token expired at `t=0`, navigation started at `t=10ms`, refresh completed at `t=150ms`, the API call would use the expired token and redirect to login mid-flow.
+A user can open a Playground URL that starts an autosaved browser-stored site, then close or reload the tab before the first MEMFS-to-OPFS copy finishes. At that point, OPFS can contain `wp-runtime.json` with `initialOpfsSyncPending: true`, while `/wordpress` is only partly copied.
 
-## Implementation
+On the next page load, `opfsSiteStorage.list()` reads `wp-runtime.json` and adds the site to Redux. Before this PR, `bootSiteClient()` mounted that partial OPFS directory as `/wordpress` and tried to boot it. It would not boot because the initial sync never finished. The user saw a generic boot failure instead of an explanation that the browser-storage save was interrupted.
 
-Added `waitForRefresh()` to `NavigationGuard`. When navigation starts:
-1. Check if `TokenRefresher.isRefreshing`
-2. If true, await the refresh promise (max 200ms)
-3. Proceed with fresh token
-
-```typescript
-async canActivate(): Promise<boolean> {
-  if (this.tokenRefresher.isRefreshing) {
-    await this.tokenRefresher.currentRefresh;
-  }
-  return this.auth.isAuthenticated();
-}
-```
-
-Considered making API calls retry with new tokens instead, but that's complex for non-idempotent requests.
+With this PR, `bootSiteClient()` stops before mounting `/wordpress` and shows “Browser storage save was interrupted.”
 
 ## Testing instructions
 
-1. Set `SESSION_TIMEOUT=30` in `.env.local`
-2. Wait 25 seconds, then navigate between routes rapidly
-3. Verify no login redirects occur
-4. Check network tab shows refresh completing before route API calls
+```bash
+npm exec nx test playground-website
+npm exec nx run playground-website:typecheck
+npm exec nx run playground-website:lint
+```
 ```
 
 ## Good: Stacked PR
@@ -115,16 +132,7 @@ Keeping this as a small follow-up makes the dependency and decoder behavior revi
 
 ## Implementation
 
-`createDecodedTarStream(compressed, codec)`:
-
-1. Accepts either a `Uint8Array` or `ReadableStream<Uint8Array>`.
-2. Uses native `DecompressionStream` when the runtime supports the requested codec.
-3. Falls back to `zstddec/stream` for `codec === 'zstd'`.
-4. Propagates decoder failures through the returned stream.
-
-The fallback feeds compressed chunks into `ZSTDDecoder.decodeStreaming()` and emits decoded TAR chunks without materializing the full decompressed archive in JS.
-
-Related: #456
+`createDecodedTarStream(compressed, codec)` accepts either a `Uint8Array` or `ReadableStream<Uint8Array>`, uses native `DecompressionStream` when available, and falls back to `zstddec/stream` for `codec === 'zstd'`.
 
 ## Testing instructions
 
@@ -136,7 +144,6 @@ npm run build
 
 The zstd round-trip test generates its fixture only when the local runtime exposes zstd compression. Older runtimes skip that fixture generation while still building and typechecking the decoder path.
 ```
-
 
 ## Good: Bug Fix with Code
 
@@ -180,10 +187,7 @@ This matches how browser `Selection` APIs work.
 
 ## Testing instructions
 
-Run `npm test -- bookmark.test.ts`. New tests cover:
-- Creating bookmark, inserting text before it, seeking to bookmark
-- Multiple bookmarks in same document
-- Bookmarks across element boundaries
+Run `npm test -- bookmark.test.ts`. New tests cover creating a bookmark, inserting text before it, and seeking back to the bookmark.
 ```
 
 ## Good: Feature Addition
@@ -195,25 +199,11 @@ Adds `parseFragment()` for parsing HTML snippets without a full document context
 
 ## Rationale
 
-`parseDocument()` requires `<html>` and `<body>` tags. For parsing HTML that will be inserted via `innerHTML` (like `<tr><td>Cell</td></tr>`), we need fragment parsing that infers context.
+`parseDocument()` requires `<html>` and `<body>` tags. For HTML that will be inserted via `innerHTML`, such as `<tr><td>Cell</td></tr>`, we need fragment parsing that infers context.
 
 ## Implementation
 
-Added `parseFragment(html, contextElement)` that creates a temporary parsing context based on where the fragment will be inserted:
-
-- Context is `<table>` → use "in table" mode
-- Context is `<div>` → use "in body" mode
-- Context is `<select>` → use "in select" mode
-
-Special handling for orphaned elements like `<tr>` or `<option>` that are only valid inside specific parents:
-
-```typescript
-if (isOrphanedTableRow(fragment)) {
-  return parseFragment(fragment, document.createElement('tbody'));
-}
-```
-
-This matches the HTML5 fragment parsing algorithm.
+`parseFragment(html, contextElement)` creates a temporary parsing context based on where the fragment will be inserted. For example, `<table>` uses “in table” mode and `<select>` uses “in select” mode.
 
 ## Testing instructions
 
@@ -221,7 +211,7 @@ This matches the HTML5 fragment parsing algorithm.
 npm test -- fragment-parser.test.ts
 ```
 
-Tests cover `<tr>`, `<option>`, `<li>`, `<td>` fragments and verify they're wrapped correctly.
+Tests cover `<tr>`, `<option>`, `<li>`, and `<td>` fragments and verify they are wrapped correctly.
 ```
 
 ## Bad: Generic AI Slop
@@ -257,22 +247,22 @@ Leveraged modern authentication patterns to implement a scalable, enterprise-gra
 
 **Why it's bad:**
 - No specific details about what changed
-- Buzzwords: "enhanced," "improved," "robust," "scalable," "enterprise-grade"
+- Buzzwords: “enhanced,” “improved,” “robust,” “scalable,” “enterprise-grade”
 - Emojis and bot signatures
 - Bullets listing vague improvements
 - No code examples or technical specifics
-- Doesn't explain the actual problem or solution
+- Does not explain the actual problem or solution
 
 # What to Avoid
 
 **Don't:**
 - Use emojis (🚀, 🎉, ✅)
-- Write "enhanced," "improved," "optimized" without specifics
-- Use generic `## Summary` / `## Testing` when the four-section structure fits
-- List files changed (that's what the diff shows)
+- Write “enhanced,” “improved,” or “optimized” without specifics
+- Use generic `## Summary` / `## Testing` when the default shape fits
+- List files changed; the diff already shows files
 - Add bot signatures
-- Use corporate buzzwords: "leverage," "synergy," "robust," "scalable," "enterprise-grade"
-- Write "key functionalities," "core capabilities," "key improvements"
+- Use corporate buzzwords: “leverage,” “synergy,” “robust,” “scalable,” “enterprise-grade”
+- Write “key functionalities,” “core capabilities,” or “key improvements”
 - Create bullet lists of vague changes
 - Make every section 5+ paragraphs
 
