@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stacked PRs"
+  short_description: "Advance stacked pull requests safely."
+  default_prompt: "Advance this stacked PR: resolve reviews, wait for CI, merge if safe, then identify or create the next small PR."
