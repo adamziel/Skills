@@ -7,27 +7,47 @@ When writing PR descriptions, be concise and structured. Write the right things,
 
 # Process
 
-Before writing, compare the branch against trunk (not just the last commit):
+Before writing, compare the branch against the PR base branch (not just the last commit):
 
 ```bash
-git diff main...HEAD
-git log main...HEAD --oneline
+git diff <base>...HEAD
+git log <base>...HEAD --oneline
 ```
 
-This shows the full scope of changes, not just recent commits.
+Use `trunk` or `main` as appropriate for the repo. This shows the full scope of changes.
 
-# Structure
+# Default Structure
 
-Use these four sections:
+Use these four sections, in this order:
 
 ## What it does
 ## Rationale
 ## Implementation
 ## Testing instructions
 
-Keep each section focused. Use markdown formatting to highlight important details.
+Keep each section focused. This is the default PR description style unless the user explicitly asks for a different format.
+
+# Section Guidance
+
+## What it does
+
+Say what behavior, API, invariant, or workflow changed. Mention important non-goals when they prevent reviewer confusion, especially in stacked PRs.
+
+## Rationale
+
+Explain why the change exists and why this PR is shaped this way. For stacked PRs, explain what this PR adds on top of the previous PR and what remains for later PRs.
+
+## Implementation
+
+Summarize the mechanism at the right level. Use a short numbered list when the flow matters. Include a tiny code example only when it clarifies a non-obvious design.
+
+## Testing instructions
+
+List concrete commands and manual checks. Prefer exact commands in a fenced code block. Add any caveats such as version-gated tests or skipped fixtures.
 
 # Writing Guidelines
+
+**PR titles:** Never start PR titles with `[codex]`, `Codex:`, or any AI/tool label. Never add Codex/OpenAI co-author trailers or AI disclosure boilerplate to PR descriptions.
 
 **Be specific.** Use inline code for technical terms: `TokenRefresher`, `SESSION_TIMEOUT`, `/api/v2/auth`.
 
@@ -36,6 +56,8 @@ Keep each section focused. Use markdown formatting to highlight important detail
 **Use formatting.** `code`, **bold**, _emphasis_, and code blocks make descriptions scannable.
 
 **Show, don't tell.** Code examples beat vague descriptions.
+
+**Avoid file-by-file changelogs.** The diff already shows files. Explain the product or technical change instead.
 
 # Examples
 
@@ -76,44 +98,45 @@ Considered making API calls retry with new tokens instead, but that's complex fo
 4. Check network tab shows refresh completing before route API calls
 ```
 
-## Bad: Generic AI Slop
+## Good: Stacked PR
 
 ```markdown
-## Summary
-This PR enhances the authentication system with improved session management capabilities and robust error handling mechanisms! 🚀
+## What it does
 
-## Key Changes
-- Enhanced token refresh functionality
-- Improved navigation flow
-- Better race condition handling
-- Optimized user experience
-- Added comprehensive error handling
+Adds `createDecodedTarStream()`, a streaming codec layer that turns compressed TAR bundle bytes into a `ReadableStream<Uint8Array>` for `StreamingTarParser` from #123.
 
-## Technical Implementation
-Leveraged modern authentication patterns to implement a scalable, enterprise-grade solution for token lifecycle management. The system now handles edge cases more effectively and provides enhanced reliability.
+This PR adds the `zstddec` fallback needed for future `tar.zst` bundles. It does not switch any bundle URLs or boot paths to `tar.zst` yet.
 
-## Benefits
-- Reduced session timeouts
-- Better performance
-- More robust authentication
-- Enhanced security
-- Improved developer experience
+## Rationale
 
-## Testing
-- [ ] All tests pass
-- [ ] Manual testing completed
-- [ ] No regressions found
+The parser from #123 consumes plain TAR bytes. The bundle work needs to feed it `.tar.zst` bytes, but browser support for native `DecompressionStream('zstd')` is not universal.
 
-🤖 Generated with Claude Code
+Keeping this as a small follow-up makes the dependency and decoder behavior reviewable on their own before the PR that changes the actual bundle format.
+
+## Implementation
+
+`createDecodedTarStream(compressed, codec)`:
+
+1. Accepts either a `Uint8Array` or `ReadableStream<Uint8Array>`.
+2. Uses native `DecompressionStream` when the runtime supports the requested codec.
+3. Falls back to `zstddec/stream` for `codec === 'zstd'`.
+4. Propagates decoder failures through the returned stream.
+
+The fallback feeds compressed chunks into `ZSTDDecoder.decodeStreaming()` and emits decoded TAR chunks without materializing the full decompressed archive in JS.
+
+Related: #456
+
+## Testing instructions
+
+```bash
+npm test -- streaming-tar-extract.spec.ts
+npm run lint
+npm run build
 ```
 
-**Why it's bad:**
-- No specific details about what changed
-- Buzzwords: "enhanced," "improved," "robust," "scalable," "enterprise-grade"
-- Emojis and bot signatures
-- Bullets listing vague improvements
-- No code examples or technical specifics
-- Doesn't explain the actual problem or solution
+The zstd round-trip test generates its fixture only when the local runtime exposes zstd compression. Older runtimes skip that fixture generation while still building and typechecking the decoder path.
+```
+
 
 ## Good: Bug Fix with Code
 
@@ -201,11 +224,51 @@ npm test -- fragment-parser.test.ts
 Tests cover `<tr>`, `<option>`, `<li>`, `<td>` fragments and verify they're wrapped correctly.
 ```
 
+## Bad: Generic AI Slop
+
+```markdown
+## Summary
+This PR enhances the authentication system with improved session management capabilities and robust error handling mechanisms! 🚀
+
+## Key Changes
+- Enhanced token refresh functionality
+- Improved navigation flow
+- Better race condition handling
+- Optimized user experience
+- Added comprehensive error handling
+
+## Technical Implementation
+Leveraged modern authentication patterns to implement a scalable, enterprise-grade solution for token lifecycle management. The system now handles edge cases more effectively and provides enhanced reliability.
+
+## Benefits
+- Reduced session timeouts
+- Better performance
+- More robust authentication
+- Enhanced security
+- Improved developer experience
+
+## Testing
+- [ ] All tests pass
+- [ ] Manual testing completed
+- [ ] No regressions found
+
+🤖 Generated with Claude Code
+```
+
+**Why it's bad:**
+- No specific details about what changed
+- Buzzwords: "enhanced," "improved," "robust," "scalable," "enterprise-grade"
+- Emojis and bot signatures
+- Bullets listing vague improvements
+- No code examples or technical specifics
+- Doesn't explain the actual problem or solution
+
 # What to Avoid
 
 **Don't:**
 - Use emojis (🚀, 🎉, ✅)
 - Write "enhanced," "improved," "optimized" without specifics
+- Use generic `## Summary` / `## Testing` when the four-section structure fits
 - List files changed (that's what the diff shows)
 - Add bot signatures
 - Use corporate buzzwords: "leverage," "synergy," "robust," "scalable," "enterprise-grade"
@@ -219,4 +282,4 @@ Tests cover `<tr>`, `<option>`, `<li>`, `<td>` fragments and verify they're wrap
 - Explain **why** decisions were made
 - Keep it scannable with formatting
 - Focus on what matters
-- Compare against trunk, not last commit
+- Compare against the PR base branch, not the last commit
