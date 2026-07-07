@@ -3,7 +3,7 @@ description: Advance a stacked PR: address review, wait/fix CI, merge when safe,
 argument-hint: "<PR number or URL> [goal/context]"
 ---
 
-Invoke the `stacked-prs` skill on the target inferred from `$ARGUMENTS`.
+Invoke the `merge-and-open-next-in-stack` skill on the target inferred from `$ARGUMENTS`.
 
 - If `$ARGUMENTS` contains a PR number or URL, use that PR.
 - If no target is provided, infer the PR for the current branch.

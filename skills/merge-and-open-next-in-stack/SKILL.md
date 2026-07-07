@@ -1,9 +1,9 @@
 ---
-name: stacked-prs
+name: merge-and-open-next-in-stack
 description: Advance and manage a stack of small pull requests cut from a larger body of work. Use when the user asks to handle a PR in a stack, address Copilot or reviewer feedback, wait for CI, fix failures, merge with an admin override if appropriate, retarget/rebase child PRs, identify the next PR in the stack, create the next PR from remaining commits, or report that the stack is done.
 ---
 
-# Stacked PRs
+# Merge and Open Next in Stack
 
 Use this skill to turn prompts like `3927: address copilot review, wait for CI to pass,
 fix any failures, merge, then give the next PR in this stack` into a safe, repeatable
