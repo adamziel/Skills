@@ -22,8 +22,14 @@ quality concerns, or CI failures remain.
      testing instructions.
 3. Improve code documentation.
    - Run `/documenting-code` if that command/skill is available.
-   - Ensure every method is documented.
-   - Document functions unless they are genuinely obvious.
+   - Do not treat `/documenting-code` as sufficient by itself. Inspect the PR diff
+     against its base and verify documentation coverage manually.
+   - Ensure every named function, method, and named function-valued constant introduced
+     or materially changed by the PR has a docblock, even when the behavior seems
+     obvious from the name.
+   - Include private helpers, React components, component-local handlers, and test
+     helpers. Anonymous callbacks and one-off JSX handlers only need inline comments
+     when they encode non-obvious intent or edge cases.
    - Add inline comments for longer or more complex stretches of code unless the intent
      is genuinely obvious.
    - Preserve existing intent, lifecycle, compatibility, edge-case, benchmark, and
